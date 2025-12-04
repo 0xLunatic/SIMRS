@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # 1. DATABASE SQL SERVER
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: simrs_db
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=PasswordSuperKuat123! # Ganti ini!
+      - MSSQL_PID=Express # Versi gratis
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./mssql-data:/var/opt/mssql # Agar data tidak hilang saat container mati
+
+  # 2. BACKEND
+  backend:
+    build: ./simrs-backend
+    container_name: simrs_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=sqlserver # Nama service DB di atas
+      - DB_USER=development
+      - DB_PASS=Muhammadfauzanqwe123#
+      - DB_NAME=SIMRS_PKU_Muhammadiyah
+    depends_on:
+      - sqlserver
+
+  # 3. FRONTEND
+  frontend:
+    build: ./simrs-frontend
+    container_name: simrs_frontend
+    restart: always
+    ports:
+      - "8080:80" # Akses di browser via IP-VPS:8080
+    depends_on:
+      - backend
